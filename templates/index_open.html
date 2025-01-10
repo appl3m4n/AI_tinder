@@ -51,10 +51,12 @@
 
     .landing-text {
         background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for better readability */
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        min-width: 300px; /* Define a consistent minimum width */
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box; /* Consistent sizing */
     }
 
     .landing-text h1 {
@@ -68,18 +70,23 @@
     }
 
     .try-button {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: #ff5733;
-        color: white;
-        text-transform: uppercase;
-        font-weight: bold;
-        text-align: center;
-        border-radius: 5px;
-        text-decoration: none;
-        margin-top: 15px;
-        transition: background-color 0.3s ease;
-    }
+    display: inline-block;
+    width: auto; /* Ensure it adapts to content */
+    max-width: 300px; /* Optional: Limit button size */
+    text-align: center;
+    padding: 12px 25px;
+    font-size: 16px; /* Keep consistent font size */
+    background-color: #ff5733;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 15px auto 0 auto; /* Center and add consistent spacing */
+    transition: background-color 0.3s ease;
+    box-sizing: border-box; /* Include padding in size */
+    text-decoration: none; /* Prevent underline on links */
+}
+
 
     .try-button:hover {
         background-color: #c24e29;

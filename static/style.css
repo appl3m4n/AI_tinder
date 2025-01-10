@@ -653,7 +653,7 @@ footer {
     color: #333; /* Dark text for visibility */
     text-align: center;
     margin: 0 auto;
-    padding: 5px 20px; /* Smaller padding */
+    padding: 20px 20px; /* Smaller padding */
     width: 60%; /* Make the div smaller */
     position: relative;
     opacity: 0; /* Initially hidden */
@@ -759,7 +759,7 @@ footer {
     font-family: 'Arial', sans-serif;
     text-align: center;
     max-width: 200px;  /* Further reduced width */
-    margin: 8px auto;  /* Slightly reduced margin */
+    margin: 60px auto 8px auto;  /* Slightly reduced margin */
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);  /* Lighter shadow */
     transform: scale(1);
     transition: all 0.3s ease-in-out;
