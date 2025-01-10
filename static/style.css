@@ -8,7 +8,7 @@ body {
 
 #title {
     /* background-color: #3498db;*/
-    background: linear-gradient(45deg,#3498db,#8e44ad); /* Gradient from blue to purple */
+    background: linear-gradient(45deg,#3498db,#ff5733); /* Gradient from blue to purple */
     display: flex;
     justify-content: space-between; /* Pushes items to the edges */
     align-items: center; /* Center items vertically */
@@ -614,7 +614,7 @@ body {
 /* Ensure footer text stays at the bottom of the page */
 body {
     min-height: 100vh;
-    display: flex;
+    
     flex-direction: column;
 }
 
@@ -752,7 +752,7 @@ footer {
 }
 
 .page-views {
-    background: linear-gradient(45deg,#3498db,#8e44ad); /* Gradient from blue to purple */
+    background: linear-gradient(45deg,#3498db,#ff5733); /* Gradient from blue to purple */
     padding: 8px 12px;  /* Reduced padding */
     border-radius: 5px;  /* Smaller border radius */
     color: white;
