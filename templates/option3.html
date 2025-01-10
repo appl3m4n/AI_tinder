@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>6 Points AI Generator</title>
+    <style>
+        /* Ensure the body and html take up the full height */
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Main content area should take all available space */
+        main {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Upload container styles */
+        #upload-container {
+            text-align: center;
+            display: inline-block;
+        }
+
+        /* Hide the default file input button */
+        #image-upload {
+            display: none;
+        }
+
+        /* Styled custom upload button */
+        #image-upload-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        /* Hover effect for the upload button */
+        #image-upload-btn:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button container to display buttons side by side */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Button for selecting best image with animation */
+        #select-btn {
+            padding: 15px 30px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        #select-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        /* Image container as a grid with 2 columns, and a flexible layout */
+        #image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* This will create 2 columns on larger screens */
+            gap: 20px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        /* Ensure uploaded images have the same size */
+        .uploaded-image-wrapper {
+            position: relative;
+        }
+
+        .uploaded-image {
+            width: 100%; /* Use full width of the grid cell */
+            height: 250px; /* Fixed height */
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Highlight the selected image */
+        .highlighted {
+            border: 4px solid #f1c40f;
+            transform: scale(1.1);
+        }
+
+        /* Download logo (visible only when selected) */
+        .download-logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background-image: url('static/download-icon.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            display: none; /* Hidden by default */
+            transition: transform 0.2s ease, opacity 0.3s ease; /* Smooth transition for hover and click effect */
+        }
+
+        /* Hover effect for the download logo */
+        .download-logo:hover {
+            transform: scale(1.2); /* Scale up effect when hovered */
+        }
+
+        /* Active effect for the download logo when clicked */
+        .download-logo:active {
+            transform: scale(1.1); /* Slightly reduce size on click for feedback */
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #f1f1f1;
+            padding: 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-left, .footer-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-links a {
+            margin: 0 10px;
+        }
+
+        /* Footer text section */
+        .footer-bottom {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 600px) {
+            /* Make buttons smaller */
+            #image-upload-btn, #select-btn {
+                min-width: 150px;
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+
+            /* Image grid with 2 columns on mobile */
+            #image-container {
+                grid-template-columns: repeat(2, 1fr); /* Two columns on small screens */
+            }
+
+            /* Reduce the image size on smaller devices */
+            .uploaded-image {
+                height: 180px; /* Make images slightly smaller */
+            }
+        }
+    </style>
+</head>
+
+<script>
+// JavaScript for image upload and random selection
+let lastSelectedImage = null; // To keep track of the last selected image
+
+function handleImageUpload(event) {
+    const files = event.target.files;
+    const imageContainer = document.getElementById("image-container");
+
+    // Clear previous images if any
+    imageContainer.innerHTML = "";
+
+    // Display uploaded images
+    for (let i = 0; i < files.length; i++) {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("uploaded-image-wrapper");
+
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(files[i]);
+        img.classList.add("uploaded-image");
+        img.setAttribute("data-index", i); // Add index for reference
+        wrapper.appendChild(img);
+
+        // Add download logo
+        const downloadLogo = document.createElement("div");
+        downloadLogo.classList.add("download-logo");
+        downloadLogo.onclick = function () { downloadImage(img); };
+        wrapper.appendChild(downloadLogo);
+
+        imageContainer.appendChild(wrapper);
+    }
+
+    // Enable random selection after 4 images are uploaded
+    if (files.length === 4) {
+        document.getElementById("select-btn").disabled = false;
+    }
+}
+
+// Function to randomly select one image from the uploaded ones
+function selectRandomImage() {
+    const images = document.querySelectorAll(".uploaded-image");
+    const randomIndex = Math.floor(Math.random() * images.length);
+    const selectedImage = images[randomIndex];
+
+    // Remove the highlight from the previous selected image if it exists
+    if (lastSelectedImage) {
+        lastSelectedImage.classList.remove("highlighted");
+        const prevWrapper = lastSelectedImage.closest('.uploaded-image-wrapper');
+        const prevDownloadLogo = prevWrapper.querySelector(".download-logo");
+        if (prevDownloadLogo) {
+            prevDownloadLogo.style.display = "none"; // Hide previous download logo
+        }
+    }
+
+    // Highlight the selected image
+    selectedImage.classList.add("highlighted");
+
+    // Show the download button (logo)
+    const wrapper = selectedImage.closest('.uploaded-image-wrapper');
+    const downloadLogo = wrapper.querySelector(".download-logo");
+    if (downloadLogo) {
+        downloadLogo.style.display = "block"; // Show download logo
+    }
+
+    // Save the reference of the selected image for future unhighlighting
+    lastSelectedImage = selectedImage;
+}
+
+// Function to download the selected image when the logo is clicked
+function downloadImage(image) {
+    const imageSrc = image.src;
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = 'selected-image.jpg'; // Change filename as needed
+    link.click();
+}
+</script>
+
+<body>
+    <header>
+        <div id="title">
+            <div class="image-container">
+                <a href="/" class="image-link">
+                    <img src="static/logo.png" alt="Home Logo" class="logo1">
+                </a>
+            </div>
+            <div class="image-container">
+                <a href="/login" class="image-link">
+                    <img src="static/icon-profile.png" alt="Profile Icon" class="logo2">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Welcome message -->
+        <div id="welcome" class="welcome-message">
+            <p>Upload profile photos and our hand-crafted AI will choose the best one for Tinder</p>
+        </div>
+
+        <!-- Button container to hold buttons in the same row -->
+        <div class="button-container">
+            <!-- Image upload section -->
+            <div id="upload-container">
+                <input type="file" id="image-upload" class="image-upload" accept="image/*" multiple onchange="handleImageUpload(event)">
+                <label for="image-upload" id="image-upload-btn">Upload Images</label>
+            </div>
+
+            <button id="select-btn" disabled onclick="selectRandomImage()">Select Best Image</button>
+        </div>
+
+        <!-- Display uploaded images -->
+        <div id="image-container"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="profile-info">
+                    <div class="profile-img">
+                        <img src="static/profile.png" alt="Profile Picture" class="profile-pic">
+                    </div>
+                    <div class="profile-name">
+                        created by <strong>Roman Hrdlovic</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-right">
+                <div class="footer-links">
+                    <a href="/privacy" class="footer-link">Privacy Policy</a>
+                    <a href="/terms" class="footer-link">Terms of Service</a>
+                    <a href="/contact" class="footer-link">Contact Us</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 6 Points AI Generator</p>
+        </div>
+    </footer>
+</body>
+</html>

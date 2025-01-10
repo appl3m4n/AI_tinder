@@ -1,0 +1,105 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/static/style.css">
+    <title>6 points AI generator</title>
+</head>
+
+<body>
+    
+    <div id="title">
+        <div class="image-container">
+            <a href="/" class="image-link">
+                <img src="static/logo.png" alt="Image 1" class="logo1">
+            </a>
+        </div>
+
+        <!-- Login Button with text and image -->
+         
+        <div class="image-container">
+            <a href="/login" class="login-btn">
+                <img src="static/icon-profile.png" alt="Login" class="login-image"> <!-- Replace with your image URL -->
+                Login
+            </a>
+        </div>
+    </div>
+
+    <!-- Welcome message and Login/Logout button -->
+    <div id="welcome" class="welcome-message">
+        <p>Replace hours into seconds by focusing on key points</p>
+    </div>
+
+
+    <!-- main content -->
+    <div id="chatbot-boxes">
+        <div class="box">
+            <a href="{{ url_for('option1') }}" class="box-link">
+                <img src="static/box1.png" alt="Option 1" class="box-image">
+                <h2>Books</h2>
+                <p>Get a quick and catchy book summary</p>
+            </a>
+        </div>
+        <div class="box">
+            <a href="/option2" class="box-link">
+                <img src="static/box2.png" alt="Option 2" class="box-image">
+                <h2>YouTube Video</h2>
+                <p>Everything to know about YT video</p>
+            </a>
+        </div>
+        <div class="box">
+            <a href="/option3" class="box-link">
+                <img src="static/box3.jpg" alt="Option 3" class="box-image">
+                <h2>Tinder AI Photo</h2>
+                <p>Best photo AI</p>
+            </a>
+        </div>
+        <div class="box">
+            <a href="/option4" class="box-link">
+                <img src="static/box4.png" alt="Option 4" class="box-image">
+                <h2>Tinder AI ChatGpt</h2>
+                <p>Review your chat</p>
+            </a>
+        </div>
+    </div>
+    <div class="page-views">
+        <p>Total Page Views: {{ views }}</p>
+    </div>
+    <div id="goodbye">
+        <br>
+    </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <!-- Left Section (Profile Info) -->
+                <div class="footer-left">
+                    <div class="profile-info">
+                        <div class="profile-img">
+                            <img src="static/profile.png" alt="Profile Picture" class="profile-pic">
+                        </div>
+                        <div class="profile-name">
+                            created by <strong>Roman Hrdlovic</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Section (Footer Links) -->
+                <div class="footer-right">
+                    <div class="footer-links">
+                        <a href="/privacy" class="footer-link">Privacy Policy</a>
+                        <a href="/terms" class="footer-link">Terms of Service</a>
+                        <a href="/contact" class="footer-link">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer Text Section (Centered) -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 6 Points AI Generator</p>
+            </div>
+        </footer>
+
+
+</body>
+</html>
