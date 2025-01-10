@@ -4,28 +4,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/static/style.css">
     <title>Review your Tinder Game</title>
-    <script>
-        function switchOption(option) {
-            // Hide both options initially
-            document.getElementById('transform-option').style.display = 'none';
-            document.getElementById('chat-ai-option').style.display = 'none';
-    
-            // Display the selected option
-            if (option === 'transform') {
-                document.getElementById('transform-option').style.display = 'block';
-                // Change the background image for "Transform Your Tinder Game"
-                document.querySelector('.landing-container').style.backgroundImage = "url('static/landing.jpg')";
-            } else if (option === 'chat-ai') {
-                document.getElementById('chat-ai-option').style.display = 'block';
-                // Change the background image for "Use Tinder Chat AI"
-                document.querySelector('.landing-container').style.backgroundImage = "url('static/landing2.jpg')";
-            }
+<script>
+    let currentOption = 'transform'; // Track the current option
+
+    function switchOption(option) {
+        const transformElement = document.getElementById('transform-option');
+        const chatAiElement = document.getElementById('chat-ai-option');
+        const landingContainer = document.querySelector('.landing-container');
+
+        if (option === 'transform') {
+            // Swipe out chat-ai and swipe in transform
+            chatAiElement.classList.add('slide-out-left');
+            transformElement.classList.add('slide-in-right');
+            landingContainer.style.backgroundImage = "url('static/landing.jpg')";
+            currentOption = 'transform';
+        } else if (option === 'chat-ai') {
+            // Swipe out transform and swipe in chat-ai
+            transformElement.classList.add('slide-out-left');
+            chatAiElement.classList.add('slide-in-right');
+            landingContainer.style.backgroundImage = "url('static/landing2.jpg')";
+            currentOption = 'chat-ai';
         }
-    
-        // Initially, show the "Transform Your Tinder Game" option and its background image
+
+        // Reset classes after the animation
+        setTimeout(() => {
+            transformElement.classList.remove('slide-in-right', 'slide-out-left');
+            chatAiElement.classList.remove('slide-in-right', 'slide-out-left');
+
+            // Ensure only the active option is visible
+            transformElement.style.display = option === 'transform' ? 'block' : 'none';
+            chatAiElement.style.display = option === 'chat-ai' ? 'block' : 'none';
+        }, 500); // Match animation duration
+    }
+
+    // Function to toggle options automatically
+    function autoToggleOptions() {
+        if (currentOption === 'transform') {
+            switchOption('chat-ai');
+        } else {
+            switchOption('transform');
+        }
+    }
+
+    // Initially, show the "Transform Your Tinder Game" option
+    document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('transform-option').style.display = 'block';
-        document.querySelector('.landing-container').style.backgroundImage = "url('static/transform-bg.jpg')";
-    </script>
+        document.getElementById('chat-ai-option').style.display = 'none';
+        switchOption('transform');
+        setInterval(autoToggleOptions, 10000); // Switch options every 10 seconds
+    });
+</script>
+
+    
+    
     
     <style>
     /* General styles */
