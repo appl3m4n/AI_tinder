@@ -3,7 +3,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.75, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/static/style.css">
-    <title>6 points AI generator</title>
+    <title>Review your Tinder Game</title>
+    <script>function switchOption(option) {
+        // Hide both options initially
+        document.getElementById('transform-option').style.display = 'none';
+        document.getElementById('chat-ai-option').style.display = 'none';
+    
+        // Display the selected option
+        if (option === 'transform') {
+            document.getElementById('transform-option').style.display = 'block';
+        } else if (option === 'chat-ai') {
+            document.getElementById('chat-ai-option').style.display = 'block';
+        }
+    }
+    
+    // Initially, show the "Transform Your Tinder Game" option
+    document.getElementById('transform-option').style.display = 'block';
+    
+    </script>
+    <style>
+/* General styles */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+}
+
+.landing-container {
+    position: relative;
+    height: 600px; /* Fixed height for the container */
+    width: 100%; /* Full width of the viewport */
+    max-width: 1200px; /* Optional max width to avoid overly wide containers */
+    margin: 0 auto; /* Center the container horizontally */
+    
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    background-image: url('static/landing-bg.jpg'); /* Background image */
+    background-size: cover;
+    background-position: center;
+}
+
+.landing-text {
+    
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background for better readability */
+    padding: 30px;
+    height: 100%; /* Ensures the text box fills the container */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.landing-text h1 {
+    font-size: 36px; /* Slightly smaller font to ensure readability */
+    margin: 0;
+}
+
+.landing-text p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.try-button {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #ff5733;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.try-button:hover {
+    background-color: #c24e29;
+}
+
+/* Switch Button Styles */
+.switch-buttons {
+    margin-top: 20px; /* Space between the 'Try It Out Now' button and the switch buttons */
+}
+
+.switch-buttons button {
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #555;
+    color: white;
+    border-radius: 5px;
+}
+
+.switch-buttons button:hover {
+    background-color: #333;
+}
+
+    </style>
 </head>
 
 <body>
@@ -26,9 +127,43 @@
         </div>
     </header>
 
+
+    <!-- Landing Page Section -->
+    <!-- Landing Page Section with Full Size and Background Image -->
+    <div class="landing-container">
+        <!-- Option 1: Transform Your Tinder Game -->
+        <div class="landing-text" id="transform-option">
+            <h1>Transform Your Tinder Game</h1>
+            <p>Boost your profile, start meaningful conversations, and get real dates—all for €9.69.</p>
+            <a href="/try-now" class="try-button">Try It Out Now</a>
+    
+            <!-- Switch buttons below -->
+            <div class="switch-buttons">
+                <button onclick="switchOption('transform')">Transform Your Tinder Game</button>
+                <button onclick="switchOption('chat-ai')">Use Tinder Chat AI</button>
+            </div>
+        </div>
+    
+        <!-- Option 2: Use Tinder Chat AI -->
+        <div class="landing-text" id="chat-ai-option" style="display: none;">
+            <h1>Use Tinder Chat AI</h1>
+            <p>Get AI-generated responses to keep your conversations flowing effortlessly.</p>
+            <a href="/chat-ai" class="try-button">Try It Out Now</a>
+    
+            <!-- Switch buttons below -->
+            <div class="switch-buttons">
+                <button onclick="switchOption('transform')">Transform Your Tinder Game</button>
+                <button onclick="switchOption('chat-ai')">Use Tinder Chat AI</button>
+            </div>
+        </div>
+    </div>
+    
+    
+    
+
     <!-- Welcome message and Login/Logout button -->
     <div id="welcome" class="welcome-message">
-        <p>Replace hours into seconds by focusing on key points</p>
+        <p>Replace hours of useless conversation into real dates just for €9.69 </p>
     </div>
 
 
@@ -97,7 +232,7 @@
             
             <!-- Footer Text Section (Centered) -->
             <div class="footer-bottom">
-                <p>&copy; 2025 6 Points AI Generator</p>
+                <p>&copy; 2025 Tinder AI Generator</p>
             </div>
         </footer>
 
