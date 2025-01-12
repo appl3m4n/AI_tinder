@@ -179,30 +179,43 @@
             text-align: center;
             display: none;
         }
+/* Style for the image with no face detected */
+.no-face {
+    position: relative;
+    display: inline-block;
+    border: 5px solid transparent;
+    border-radius: 12px;
+    background: linear-gradient(45deg, rgba(255, 0, 0, 0.5), rgba(255, 100, 100, 0.5));
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+    transition: all 0.3s ease-in-out;
+}
 
-        .no-face {
-                position: relative; /* Required for the image to display correctly */
-                display: inline-block;
-                border: 5px solid transparent; /* Make the border transparent initially */
-                border-radius: 12px; /* Match the image's border radius for a more rounded look */
-                background: linear-gradient(45deg, rgba(255, 0, 0, 0.5), rgba(255, 100, 100, 0.5)); /* Sexy gradient border */
-                box-shadow: 0 0 15px rgba(255, 0, 0, 0.8); /* Subtle red glow effect around the border */
-                transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
-            }
+/* On hover, increase the shadow for better visibility */
+.no-face:hover {
+    box-shadow: 0 0 25px rgba(255, 0, 0, 1);
+    transform: scale(1.05);
+}
 
-            .no-face:hover {
-                box-shadow: 0 0 25px rgba(255, 0, 0, 1); /* Stronger glow effect on hover */
-                transform: scale(1.05); /* Slightly increase size on hover */
-            }
+/* Ensure the image fills the container */
+.no-face img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
 
-            .no-face img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 12px; /* Ensure border-radius is applied to the image */
-            }
-
-
+/* Style for the message over the image */
+.no-face-message {
+    position: absolute;
+    top: 50%; /* Position in the center of the image */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centering technique */
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Text shadow for better visibility */
+    z-index: 1; /* Ensure the text appears on top */
+}
 
     </style>
 </head>
@@ -211,26 +224,24 @@
 // Add more debugging to check file input and image processing
 function handleImageUpload(event) {
     const files = event.target.files;
-    console.log('Files selected:', files); // Debugging: Log selected files
-    
+    console.log('Files selected:', files);
+
     const imageContainer = document.getElementById("image-container");
     const errorMessage = document.getElementById("error-message");
     const selectBtn = document.getElementById("select-btn");
 
-    // Clear previous images if any
     imageContainer.innerHTML = "";
     errorMessage.style.display = "none";  // Hide the error message initially
 
-    // Check if the number of images is valid
     if (files.length < 2 || files.length > 6) {
         errorMessage.textContent = "You must upload between 2 and 6 images.";
-        errorMessage.style.display = "block"; // Show the error message if the validation fails
-        selectBtn.style.display = "none"; // Hide select button if invalid number of images
-        document.getElementById("download-btn").style.display = "none"; // Hide download button
+        errorMessage.style.display = "block";
+        selectBtn.style.display = "none";
+        document.getElementById("download-btn").style.display = "none";
         return;
     }
 
-    // Display uploaded images initially
+    // Display uploaded images
     for (let i = 0; i < files.length; i++) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("uploaded-image-wrapper");
@@ -244,59 +255,59 @@ function handleImageUpload(event) {
         imageContainer.appendChild(wrapper);
     }
 
-    // Enable random selection after images are uploaded
-    selectBtn.style.display = "inline-block"; // Show Select Best Image button
-    document.getElementById("download-btn").style.display = "none"; // Hide Download Best Image button until selection is made
+    selectBtn.style.display = "inline-block";  // Show Select Best Image button
+    document.getElementById("download-btn").style.display = "none";
 
-    // Upload the images to the server for face detection
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
         formData.append('images', files[i]);
     }
 
     fetch('/upload', {
-    method: 'POST',
-    body: formData
-})
-.then(response => response.json())  // Parse the response as JSON
-.then(data => {
-    console.log('Face detection results:', data); // Debugging: Log the response data
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Face detection results:', data);
 
-    // Remove previous images and display face-detected images
-    imageContainer.innerHTML = "";
+        imageContainer.innerHTML = ""; // Clear previous images
 
-    Object.keys(data).forEach(filename => {
-        const result = data[filename];
+        Object.keys(data).forEach(filename => {
+            const result = data[filename];
 
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("uploaded-image-wrapper");
+            const wrapper = document.createElement("div");
+            wrapper.classList.add("uploaded-image-wrapper");
 
-        const img = document.createElement("img");
-        img.classList.add("uploaded-image");
+            const img = document.createElement("img");
+            img.classList.add("uploaded-image");
 
-        if (result.status === "Faces detected" && result.image) {
-            // If faces are detected, display the image with face rectangles
-            img.src = "data:image/png;base64," + result.image;
-        } else {
-            // If no faces detected, display the image with red tint and border
-            img.src = "data:image/png;base64," + result.image; // No change, just the original image
-            img.classList.add("no-face");  // Add class to style image with red border/tint
-        }
+            if (result.status === "Faces detected" && result.image) {
+                img.src = "data:image/png;base64," + result.image;
+            } else {
+                img.src = "data:image/png;base64," + result.image;
+                img.classList.add("no-face");
 
-        wrapper.appendChild(img);
-        imageContainer.appendChild(wrapper);
+                const message = document.createElement("div");
+                message.classList.add("no-face-message");
+                message.textContent = "No face detected";
+                wrapper.appendChild(message);
+            }
+
+            wrapper.appendChild(img);
+            imageContainer.appendChild(wrapper);
+        });
+
+        selectBtn.style.display = "inline-block"; 
+        document.getElementById("download-btn").style.display = "none"; 
+    })
+    .catch(error => {
+        console.error("Error during image upload:", error);
+        errorMessage.textContent = "Error: " + error.message;
+        errorMessage.style.display = "block";
+        selectBtn.style.display = "none";
+        document.getElementById("download-btn").style.display = "none"; 
     });
-
-    selectBtn.style.display = "inline-block"; // Enable the selection of the best image
-    document.getElementById("download-btn").style.display = "none"; // Hide Download Best Image button until selection
-})
-.catch(error => {
-    console.error("Error during image upload:", error); // Debugging: Log the error
-    errorMessage.textContent = "Error: " + error.message;
-    errorMessage.style.display = "block"; // Show error message
-    selectBtn.style.display = "none"; // Hide select button if an error occurs
-    document.getElementById("download-btn").style.display = "none"; // Hide download button
-});
 }
 
 </script>
