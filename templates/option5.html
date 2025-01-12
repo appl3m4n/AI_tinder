@@ -221,96 +221,173 @@
 </head>
 
 <script>
-// Add more debugging to check file input and image processing
-function handleImageUpload(event) {
-    const files = event.target.files;
-    console.log('Files selected:', files);
-
-    const imageContainer = document.getElementById("image-container");
-    const errorMessage = document.getElementById("error-message");
-    const selectBtn = document.getElementById("select-btn");
-
-    imageContainer.innerHTML = "";
-    errorMessage.style.display = "none";  // Hide the error message initially
-
-    if (files.length < 2 || files.length > 6) {
-        errorMessage.textContent = "You must upload between 2 and 6 images.";
-        errorMessage.style.display = "block";
-        selectBtn.style.display = "none";
-        document.getElementById("download-btn").style.display = "none";
-        return;
-    }
-
-    // Display uploaded images
-    for (let i = 0; i < files.length; i++) {
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("uploaded-image-wrapper");
-
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(files[i]);
-        img.classList.add("uploaded-image");
-        img.setAttribute("data-index", i); // Add index for reference
-        wrapper.appendChild(img);
-
-        imageContainer.appendChild(wrapper);
-    }
-
-    selectBtn.style.display = "inline-block";  // Show Select Best Image button
-    document.getElementById("download-btn").style.display = "none";
-
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-        formData.append('images', files[i]);
-    }
-
-    fetch('/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Face detection results:', data);
-
-        imageContainer.innerHTML = ""; // Clear previous images
-
-        Object.keys(data).forEach(filename => {
-            const result = data[filename];
-
+    // Image selection and upload logic
+    
+    let imagesUploaded = false;  // Flag to track if images have been uploaded
+    let lastSelectedImage = null; // Reference to the last selected image
+    let imageCount = 0; // To track the number of uploaded images
+    let faceImages = [];  // Array to hold images with faces detected
+    
+    // Function to handle image uploads
+    function handleImageUpload(event) {
+        const files = event.target.files;
+        console.log('Files selected:', files);
+    
+        const imageContainer = document.getElementById("image-container");
+        const errorMessage = document.getElementById("error-message");
+        const selectBtn = document.getElementById("select-btn");
+    
+        imageContainer.innerHTML = "";
+        errorMessage.style.display = "none";  // Hide the error message initially
+    
+        if (files.length < 2 || files.length > 6) {
+            errorMessage.textContent = "You must upload between 2 and 6 images.";
+            errorMessage.style.display = "block";
+            selectBtn.style.display = "none";
+            document.getElementById("download-btn").style.display = "none";
+            return;
+        }
+    
+        // Clear the faceImages array
+        faceImages = [];
+    
+        // Display uploaded images in the same order as they were selected
+        for (let i = 0; i < files.length; i++) {
             const wrapper = document.createElement("div");
             wrapper.classList.add("uploaded-image-wrapper");
-
+    
             const img = document.createElement("img");
+            img.src = URL.createObjectURL(files[i]);
             img.classList.add("uploaded-image");
-
-            if (result.status === "Faces detected" && result.image) {
-                img.src = "data:image/png;base64," + result.image;
-            } else {
-                img.src = "data:image/png;base64," + result.image;
-                img.classList.add("no-face");
-
-                const message = document.createElement("div");
-                message.classList.add("no-face-message");
-                message.textContent = "No face detected";
-                wrapper.appendChild(message);
-            }
-
+            img.setAttribute("data-index", i); // Add index for reference
             wrapper.appendChild(img);
+    
             imageContainer.appendChild(wrapper);
+        }
+    
+        imagesUploaded = true;  // Set the flag when images are uploaded
+        selectBtn.style.display = "inline-block";  // Show "Select Best Image" button
+        document.getElementById("download-btn").style.display = "none";  // Hide download button initially
+    
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('images', files[i]);
+        }
+    
+        // Send images to the server for face detection
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Face detection results:', data);
+    
+            imageContainer.innerHTML = ""; // Clear previous images
+    
+            // Process server response for face detection results
+            Object.keys(data).forEach(filename => {
+                const result = data[filename];
+    
+                const wrapper = document.createElement("div");
+                wrapper.classList.add("uploaded-image-wrapper");
+    
+                const img = document.createElement("img");
+                img.classList.add("uploaded-image");
+    
+                if (result.status === "Faces detected" && result.image) {
+                    img.src = "data:image/png;base64," + result.image;
+                    faceImages.push(img); // Add to the faceImages array if a face is detected
+                } else {
+                    img.src = "data:image/png;base64," + result.image;
+                    img.classList.add("no-face");
+    
+                    const message = document.createElement("div");
+                    message.classList.add("no-face-message");
+                    message.textContent = "No face detected";
+                    wrapper.appendChild(message);
+                }
+    
+                wrapper.appendChild(img);
+                imageContainer.appendChild(wrapper);
+            });
+    
+            // Only show the "Select Best Image" button if there are images with faces detected
+            if (faceImages.length > 0) {
+                selectBtn.style.display = "inline-block";
+            } else {
+                selectBtn.style.display = "none"; // Hide if no faces detected
+            }
+    
+            document.getElementById("download-btn").style.display = "none";
+        })
+        .catch(error => {
+            console.error("Error during image upload:", error);
+            errorMessage.textContent = "Error: " + error.message;
+            errorMessage.style.display = "block";
+            selectBtn.style.display = "none";
+            document.getElementById("download-btn").style.display = "none";
         });
-
-        selectBtn.style.display = "inline-block"; 
-        document.getElementById("download-btn").style.display = "none"; 
-    })
-    .catch(error => {
-        console.error("Error during image upload:", error);
-        errorMessage.textContent = "Error: " + error.message;
-        errorMessage.style.display = "block";
-        selectBtn.style.display = "none";
-        document.getElementById("download-btn").style.display = "none"; 
-    });
-}
-
+    }
+    
+    // Function to randomly select one image from the uploaded ones with faces detected
+    function selectRandomImage() {
+        if (!imagesUploaded) {
+            alert("Please upload images before selecting.");
+            return;
+        }
+    
+        if (faceImages.length === 0) {
+            alert("No images with faces detected. Please upload images with faces.");
+            return;
+        }
+    
+        const randomIndex = Math.floor(Math.random() * faceImages.length);
+        const selectedImage = faceImages[randomIndex];
+    
+        // Remove the highlight from the previous selected image if it exists
+        if (lastSelectedImage) {
+            lastSelectedImage.classList.remove("highlighted");
+        }
+    
+        // Highlight the selected image
+        selectedImage.classList.add("highlighted");
+    
+        // Hide the "Select Best Image" button and show the "Download Best Image" button
+        document.getElementById("select-btn").style.display = "none";
+        document.getElementById("download-btn").style.display = "inline-block";
+    
+        // Save the reference of the selected image for future unhighlighting
+        lastSelectedImage = selectedImage;
+    }
+    
+    // Function to download the selected image when the button is clicked
+    function downloadImage() {
+        if (!lastSelectedImage) {
+            alert("Please select an image first.");
+            return;
+        }
+    
+        const imageSrc = lastSelectedImage.src;
+        const link = document.createElement('a');
+        link.href = imageSrc;
+        link.download = 'selected-image.jpg'; // Change filename as needed
+        link.click();
+    
+        // After download, reset the buttons and require new image upload
+        document.getElementById("select-btn").style.display = "none";
+        document.getElementById("download-btn").style.display = "none";
+    
+        // Allow user to upload new images
+        document.getElementById("image-upload-btn").style.display = "inline-block";
+        imagesUploaded = false; // Reset imagesUploaded flag
+        imageCount = 0; // Reset image count
+    }
+    
 </script>
+
+    
+    
 
 <body>
     <header>

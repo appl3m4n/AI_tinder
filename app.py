@@ -341,7 +341,7 @@ def upload_files():
     if len(files) < 2 or len(files) > 6:
         return jsonify({"error": "Please upload between 2 and 6 images."}), 400
 
-    results = {}
+    results = []  # Using a list instead of a dictionary
 
     for file in files:
         if file and allowed_file(file.filename):
@@ -353,7 +353,6 @@ def upload_files():
             img = cv2.imread(filepath)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-            
             faces = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
             if len(faces) > 0:
@@ -370,38 +369,25 @@ def upload_files():
                 alpha = 0.4  # Opacity factor (0.0 is fully transparent, 1.0 is fully opaque)
                 cv2.addWeighted(red_overlay, alpha, overlay, 1 - alpha, 0, img)  # Blend the two images
 
-                # Draw a red rectangle around the whole image to highlight it
-                #height, width, _ = img.shape
-                #cv2.rectangle(img, (0, 0), (width, height), (0, 0, 255), 5)  # Red border
-
             # Now `img` contains the processed image with the desired effect
-            # Now `img` contains the processed image with the desired effect
-            # Encode the processed image (with or without face rectangles) to PNG
             _, img_encoded = cv2.imencode('.png', img)
             img_bytes = img_encoded.tobytes()
 
             # Convert image bytes to base64 to include in response
             img_base64 = base64.b64encode(img_bytes).decode('utf-8')
 
-            # Store the result for the current image
+            # Append the result for the current image to the list
             if len(faces) > 0:
-                results[filename] = {"status": "Faces detected", "image": img_base64}
+                results.append({"filename": filename, "status": "Faces detected", "image": img_base64})
             else:
-                results[filename] = {"status": "No faces detected", "image": img_base64}
+                results.append({"filename": filename, "status": "No faces detected", "image": img_base64})
 
         else:
-            results[file.filename] = {"status": "Invalid file type"}
-
-    # Prepare the response to return to the frontend
-    response = {}
-    for filename, result in results.items():
-        response[filename] = {
-            "status": result["status"],
-            "image": result["image"]
-        }
+            results.append({"filename": file.filename, "status": "Invalid file type"})
 
     # Return the results as JSON
-    return jsonify(response), 200
+    return jsonify(results), 200
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
