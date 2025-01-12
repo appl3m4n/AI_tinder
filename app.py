@@ -18,6 +18,12 @@ db_password = ""
 db_name = "users_db"
 db_connection_name = "localhost"
 
+# Database configuration for python
+#db_user = "appl3m4n"
+#db_password = "romanroman"
+#db_name = "appl3m4n$users_db"
+#db_connection_name = "appl3m4n.mysql.pythonanywhere-services.com"
+
 app.config['SECRET_KEY'] = 'thisisasecretkey'
 bcrypt = Bcrypt(app)
 
@@ -266,6 +272,10 @@ def option3():
 @app.route('/option4')
 def option4():
     return render_template('option4.html', current_user=current_user)
+
+@app.route('/option5')
+def option5():
+    return render_template('option5.html', current_user=current_user)
 
 @app.route('/chat1.html')
 @login_required
