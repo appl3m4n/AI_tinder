@@ -66,19 +66,21 @@
         }
 
         /* Button for selecting best image with animation */
-        #select-btn {
+        #select-btn, #download-btn {
             padding: 15px 30px;
-            background-color: #3498db;
-            color: white;
-            border: none;
             border-radius: 50px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
             min-width: 200px;
             text-align: center;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #select-btn {
+            background-color: #3498db;
+            color: white;
         }
 
         #select-btn:hover {
@@ -86,20 +88,9 @@
             transform: scale(1.05);
         }
 
-        /* Button for downloading best image */
         #download-btn {
-            padding: 15px 30px;
             background-color: #f39c12;
             color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
-            min-width: 200px;
-            text-align: center;
             display: none; /* Hidden by default */
         }
 
@@ -111,7 +102,7 @@
         /* Image container as a grid with 2 columns, and a flexible layout */
         #image-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Auto-fill with a minimum width of 300px */
             gap: 20px;
             justify-items: center;
             margin-top: 20px;
@@ -120,13 +111,13 @@
         /* Ensure uploaded images have the same size */
         .uploaded-image-wrapper {
             position: relative;
-            width: 100%; /* Full width of the grid item */
+            width: 100%;
             max-width: 400px; /* Prevent images from becoming too large */
         }
 
         .uploaded-image {
-            width: 100%; /* Make images responsive and cover the entire grid cell */
-            height: 250px; /* Fixed height for consistent size */
+            width: 100%;
+            height: 250px;
             object-fit: cover;
             border-radius: 8px;
             transition: transform 0.3s ease;
@@ -160,7 +151,6 @@
             margin: 0 10px;
         }
 
-        /* Footer text section */
         .footer-bottom {
             margin-top: 10px;
             font-size: 14px;
@@ -175,11 +165,6 @@
                 font-size: 16px;
             }
 
-            /* Image grid with 2 columns on mobile */
-            #image-container {
-                grid-template-columns: repeat(2, 1fr); /* Two columns on small screens */
-            }
-
             /* Reduce the image size on smaller devices */
             .uploaded-image {
                 height: 180px; /* Make images slightly smaller */
@@ -192,19 +177,42 @@
             font-weight: bold;
             margin-top: 20px;
             text-align: center;
-            display: none; /* Hidden initially */
+            display: none;
         }
+
+        .no-face {
+                position: relative; /* Required for the image to display correctly */
+                display: inline-block;
+                border: 5px solid transparent; /* Make the border transparent initially */
+                border-radius: 12px; /* Match the image's border radius for a more rounded look */
+                background: linear-gradient(45deg, rgba(255, 0, 0, 0.5), rgba(255, 100, 100, 0.5)); /* Sexy gradient border */
+                box-shadow: 0 0 15px rgba(255, 0, 0, 0.8); /* Subtle red glow effect around the border */
+                transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
+            }
+
+            .no-face:hover {
+                box-shadow: 0 0 25px rgba(255, 0, 0, 1); /* Stronger glow effect on hover */
+                transform: scale(1.05); /* Slightly increase size on hover */
+            }
+
+            .no-face img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 12px; /* Ensure border-radius is applied to the image */
+            }
+
+
+
     </style>
 </head>
 
 <script>
-// JavaScript for image upload and random selection
-let lastSelectedImage = null; // To keep track of the last selected image
-let imagesUploaded = false;  // Track if images are uploaded
-let imageCount = 0; // Track the number of uploaded images
-
+// Add more debugging to check file input and image processing
 function handleImageUpload(event) {
     const files = event.target.files;
+    console.log('Files selected:', files); // Debugging: Log selected files
+    
     const imageContainer = document.getElementById("image-container");
     const errorMessage = document.getElementById("error-message");
     const selectBtn = document.getElementById("select-btn");
@@ -222,7 +230,7 @@ function handleImageUpload(event) {
         return;
     }
 
-    // Display uploaded images
+    // Display uploaded images initially
     for (let i = 0; i < files.length; i++) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("uploaded-image-wrapper");
@@ -240,59 +248,57 @@ function handleImageUpload(event) {
     selectBtn.style.display = "inline-block"; // Show Select Best Image button
     document.getElementById("download-btn").style.display = "none"; // Hide Download Best Image button until selection is made
 
-    imagesUploaded = true; // Mark images as uploaded
-    imageCount = files.length; // Set image count
-}
-
-// Function to randomly select one image from the uploaded ones
-function selectRandomImage() {
-    if (!imagesUploaded) {
-        alert("Please upload images before selecting.");
-        return;
+    // Upload the images to the server for face detection
+    const formData = new FormData();
+    for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
     }
 
-    const images = document.querySelectorAll(".uploaded-image");
-    const randomIndex = Math.floor(Math.random() * images.length);
-    const selectedImage = images[randomIndex];
+    fetch('/upload', {
+    method: 'POST',
+    body: formData
+})
+.then(response => response.json())  // Parse the response as JSON
+.then(data => {
+    console.log('Face detection results:', data); // Debugging: Log the response data
 
-    // Remove the highlight from the previous selected image if it exists
-    if (lastSelectedImage) {
-        lastSelectedImage.classList.remove("highlighted");
-    }
+    // Remove previous images and display face-detected images
+    imageContainer.innerHTML = "";
 
-    // Highlight the selected image
-    selectedImage.classList.add("highlighted");
+    Object.keys(data).forEach(filename => {
+        const result = data[filename];
 
-    // Hide the "Select Best Image" button and show the "Download Best Image" button
-    document.getElementById("select-btn").style.display = "none";
-    document.getElementById("download-btn").style.display = "inline-block";
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("uploaded-image-wrapper");
 
-    // Save the reference of the selected image for future unhighlighting
-    lastSelectedImage = selectedImage;
+        const img = document.createElement("img");
+        img.classList.add("uploaded-image");
+
+        if (result.status === "Faces detected" && result.image) {
+            // If faces are detected, display the image with face rectangles
+            img.src = "data:image/png;base64," + result.image;
+        } else {
+            // If no faces detected, display the image with red tint and border
+            img.src = "data:image/png;base64," + result.image; // No change, just the original image
+            img.classList.add("no-face");  // Add class to style image with red border/tint
+        }
+
+        wrapper.appendChild(img);
+        imageContainer.appendChild(wrapper);
+    });
+
+    selectBtn.style.display = "inline-block"; // Enable the selection of the best image
+    document.getElementById("download-btn").style.display = "none"; // Hide Download Best Image button until selection
+})
+.catch(error => {
+    console.error("Error during image upload:", error); // Debugging: Log the error
+    errorMessage.textContent = "Error: " + error.message;
+    errorMessage.style.display = "block"; // Show error message
+    selectBtn.style.display = "none"; // Hide select button if an error occurs
+    document.getElementById("download-btn").style.display = "none"; // Hide download button
+});
 }
 
-// Function to download the selected image when the button is clicked
-function downloadImage() {
-    if (!lastSelectedImage) {
-        alert("Please select an image first.");
-        return;
-    }
-
-    const imageSrc = lastSelectedImage.src;
-    const link = document.createElement('a');
-    link.href = imageSrc;
-    link.download = 'selected-image.jpg'; // Change filename as needed
-    link.click();
-
-    // After download, reset the buttons and require new image upload
-    document.getElementById("select-btn").style.display = "none";
-    document.getElementById("download-btn").style.display = "none";
-
-    // Allow user to upload new images
-    document.getElementById("image-upload-btn").style.display = "inline-block";
-    imagesUploaded = false; // Reset imagesUploaded flag
-    imageCount = 0; // Reset image count
-}
 </script>
 
 <body>
@@ -304,11 +310,9 @@ function downloadImage() {
                 </a>
             </div>
 
-            <!-- Login Button with text and image -->
-            
             <div class="image-container">
                 <a href="/login" class="login-btn">
-                    <img src="static/icon-profile.png" alt="Login" class="login-image"> <!-- Replace with your image URL -->
+                    <img src="static/icon-profile.png" alt="Login" class="login-image">
                     Login
                 </a>
             </div>
@@ -316,17 +320,13 @@ function downloadImage() {
     </header>
 
     <main>
-        <!-- Welcome message -->
         <div id="welcome" class="welcome-message">
             <p>Upload profile photos and our hand-crafted AI will choose the best one for Tinder</p>
         </div>
 
-        <!-- Error message for invalid number of images -->
         <div id="error-message" class="error-message"></div>
 
-        <!-- Button container to hold buttons in the same row -->
         <div class="button-container">
-            <!-- Image upload section -->
             <div id="upload-container">
                 <input type="file" id="image-upload" class="image-upload" accept="image/*" multiple onchange="handleImageUpload(event)">
                 <label for="image-upload" id="image-upload-btn">Upload Images</label>
@@ -336,11 +336,9 @@ function downloadImage() {
             <button id="download-btn" style="display:none;" onclick="downloadImage()">Download Best Image</button>
         </div>
 
-        <!-- Display uploaded images -->
         <div id="image-container"></div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-left">
