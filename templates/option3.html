@@ -194,35 +194,138 @@
             text-align: center;
             display: none; /* Hidden initially */
         }
+
+        #image-placeholder {
+    text-align: center;
+    color: #555;
+    padding: 20px;
+    border: 2px dashed #ddd;
+    border-radius: 10px;
+    background-color: #fafafa;
+    margin-top: 20px;
+}
+
+#image-placeholder h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#image-placeholder p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    color: #666;
+}
+
+#image-placeholder .try-button {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#image-placeholder .try-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+}
+/* Animation for the welcome section sliding down */
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-30px); /* Start from above */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0); /* End at original position */
+    }
+}
+
+/* Apply animation to the placeholder heading */
+#image-placeholder h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 10px;
+    animation: slideDown 1s ease-in-out; /* Add the animation */
+    opacity: 0; /* Ensure initial state matches animation */
+    animation-fill-mode: forwards; /* Keep the final state after animation ends */
+}
+
+/* Responsive Styling for Mobile Screens */
+@media (max-width: 768px) {
+    #image-placeholder h1 {
+        font-size: 1.5rem; /* Adjust font size for mobile */
+    }
+
+    .welcome-message {
+        width: 80%; /* Make the div slightly bigger on mobile */
+        font-size: 1rem; /* Smaller font size for mobile */
+    }
+}
+/* Button icon styles */
+.button-icon {
+    width: 24px; /* Icon size */
+    height: 24px;
+    margin-right: 10px; /* Spacing between the icon and text */
+    vertical-align: middle; /* Align icon with text */
+}
+
+/* Adjust buttons with icons for better appearance */
+#image-upload-btn, #select-btn, #download-btn {
+    display: inline-flex; /* Align icon and text horizontally */
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+}
+
+/* Specific hover effects for buttons with icons */
+#image-upload-btn:hover img,
+#select-btn:hover img,
+#download-btn:hover img {
+    transform: scale(1.1); /* Slight zoom on hover */
+    transition: transform 0.2s ease;
+}
+
     </style>
 </head>
 
 <script>
-// JavaScript for image upload and random selection
-let lastSelectedImage = null; // To keep track of the last selected image
-let imagesUploaded = false;  // Track if images are uploaded
-let imageCount = 0; // Track the number of uploaded images
+let lastSelectedImage = null; // Track the last selected image
+let imageSelected = false;    // Track if an image has been selected
 
 function handleImageUpload(event) {
     const files = event.target.files;
     const imageContainer = document.getElementById("image-container");
     const errorMessage = document.getElementById("error-message");
     const selectBtn = document.getElementById("select-btn");
+    const downloadBtn = document.getElementById("download-btn");
 
-    // Clear previous images if any
-    imageContainer.innerHTML = "";
-    errorMessage.style.display = "none";  // Hide the error message initially
+    // Reset the state for new uploads
+    imageContainer.innerHTML = ""; // Clear the images
+    errorMessage.style.display = "none";
+    selectBtn.style.display = "none";
+    downloadBtn.style.display = "none";
+    lastSelectedImage = null;
+    imageSelected = false; // Allow selection for new images
 
-    // Check if the number of images is valid
+    // Validate the number of files
     if (files.length < 2 || files.length > 6) {
         errorMessage.textContent = "You must upload between 2 and 6 images.";
-        errorMessage.style.display = "block"; // Show the error message if the validation fails
-        selectBtn.style.display = "none"; // Hide select button if invalid number of images
-        document.getElementById("download-btn").style.display = "none"; // Hide download button
+        errorMessage.style.display = "block";
         return;
     }
 
-    // Display uploaded images
+    // Display the uploaded images
     for (let i = 0; i < files.length; i++) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("uploaded-image-wrapper");
@@ -230,24 +333,20 @@ function handleImageUpload(event) {
         const img = document.createElement("img");
         img.src = URL.createObjectURL(files[i]);
         img.classList.add("uploaded-image");
-        img.setAttribute("data-index", i); // Add index for reference
+        img.setAttribute("data-index", i);
         wrapper.appendChild(img);
 
         imageContainer.appendChild(wrapper);
     }
 
-    // Enable random selection after images are uploaded
-    selectBtn.style.display = "inline-block"; // Show Select Best Image button
-    document.getElementById("download-btn").style.display = "none"; // Hide Download Best Image button until selection is made
-
-    imagesUploaded = true; // Mark images as uploaded
-    imageCount = files.length; // Set image count
+    // Show the image container and "Select Best Image" button
+    imageContainer.style.display = "grid";
+    selectBtn.style.display = "inline-block";
 }
 
-// Function to randomly select one image from the uploaded ones
 function selectRandomImage() {
-    if (!imagesUploaded) {
-        alert("Please upload images before selecting.");
+    if (imageSelected) {
+        alert("You have already selected the best image. To select again, upload new images.");
         return;
     }
 
@@ -255,23 +354,20 @@ function selectRandomImage() {
     const randomIndex = Math.floor(Math.random() * images.length);
     const selectedImage = images[randomIndex];
 
-    // Remove the highlight from the previous selected image if it exists
+    // Highlight the selected image
     if (lastSelectedImage) {
         lastSelectedImage.classList.remove("highlighted");
     }
-
-    // Highlight the selected image
     selectedImage.classList.add("highlighted");
 
-    // Hide the "Select Best Image" button and show the "Download Best Image" button
+    lastSelectedImage = selectedImage;
+    imageSelected = true;
+
+    // Hide "Select Best Image" button and show "Download Best Image" button
     document.getElementById("select-btn").style.display = "none";
     document.getElementById("download-btn").style.display = "inline-block";
-
-    // Save the reference of the selected image for future unhighlighting
-    lastSelectedImage = selectedImage;
 }
 
-// Function to download the selected image when the button is clicked
 function downloadImage() {
     if (!lastSelectedImage) {
         alert("Please select an image first.");
@@ -279,19 +375,10 @@ function downloadImage() {
     }
 
     const imageSrc = lastSelectedImage.src;
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = imageSrc;
-    link.download = 'selected-image.jpg'; // Change filename as needed
+    link.download = "selected-image.jpg";
     link.click();
-
-    // After download, reset the buttons and require new image upload
-    document.getElementById("select-btn").style.display = "none";
-    document.getElementById("download-btn").style.display = "none";
-
-    // Allow user to upload new images
-    document.getElementById("image-upload-btn").style.display = "inline-block";
-    imagesUploaded = false; // Reset imagesUploaded flag
-    imageCount = 0; // Reset image count
 }
 </script>
 
@@ -316,29 +403,48 @@ function downloadImage() {
     </header>
 
     <main>
-        <!-- Welcome message -->
+        <!-- Welcome message 
         <div id="welcome" class="welcome-message">
-            <p>Upload profile photos and our hand-crafted AI will choose the best one for Tinder</p>
-        </div>
+            <p>Upload between 2 and 6 profile photos, and our hand-crafted AI will choose the best one for Tinder.</p>
+        </div>-->
 
         <!-- Error message for invalid number of images -->
         <div id="error-message" class="error-message"></div>
 
-        <!-- Button container to hold buttons in the same row -->
-        <div class="button-container">
-            <!-- Image upload section -->
-            <div id="upload-container">
-                <input type="file" id="image-upload" class="image-upload" accept="image/*" multiple onchange="handleImageUpload(event)">
-                <label for="image-upload" id="image-upload-btn">Upload Images</label>
-            </div>
+        <!-- Landing text with "Try" button -->
+        <div id="image-placeholder">
+            <h1>Show Us Your Best Shots!</h1>
+            <p>Upload between 2 and 6 images to let our AI choose the best one for your Tinder profile. Stand out and make the first impression count!</p>
+            <!-- Button container always visible within the placeholder -->
+            <div class="button-container">
+                <!-- Upload Button -->
+                <label for="image-upload" id="image-upload-btn">
+                    <img src="static/upload.png" alt="Upload Icon" class="button-icon">
+                    Upload Images
+                </label>
 
-            <button id="select-btn" style="display:none;" onclick="selectRandomImage()">Select Best Image</button>
-            <button id="download-btn" style="display:none;" onclick="downloadImage()">Download Best Image</button>
+                <!-- Select Best Image Button -->
+                <button id="select-btn" style="display:none;" onclick="selectRandomImage()">
+                    <img src="static/magic-wand.png" alt="Select Icon" class="button-icon">
+                    Select Best Image
+                </button>
+
+                <!-- Download Best Image Button -->
+                <button id="download-btn" style="display:none;" onclick="downloadImage()">
+                    <img src="static/download.png" alt="Download Icon" class="button-icon">
+                    Download Best Image
+                </button>
+                </div>
         </div>
-
+        
+        <!-- Hidden file input for image upload -->
+        <input type="file" id="image-upload" class="image-upload" accept="image/*" multiple onchange="handleImageUpload(event)" style="display:none;">
+        
         <!-- Display uploaded images -->
-        <div id="image-container"></div>
-    </main>
+        <div id="image-container" style="display:none;"></div>
+        
+        
+   </main>
 
     <!-- Footer -->
     <footer class="footer">
