@@ -296,6 +296,33 @@
     transition: transform 0.2s ease;
 }
 
+.landing-text {
+    text-align: center;
+    background-image: url('static/couple.jpg'); /* Replace with your background image */
+    background-size: cover;
+    background-position: center;
+    padding: 80px; /* Increased padding for more spacing */
+    border-radius: 10px;
+    margin-top: 20px;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    
+    margin-left: auto; /* Center align */
+    margin-right: auto;
+}
+
+.landing-text h1 {
+    font-size: 48px; /* Larger font size for heading */
+    margin-bottom: 30px; /* Increased spacing below heading */
+}
+
+.landing-text p {
+    font-size: 20px; /* Larger font size for paragraph */
+    margin-bottom: 40px; /* Increased spacing below paragraph */
+}
+
+
+
     </style>
 </head>
 
@@ -309,6 +336,7 @@ function handleImageUpload(event) {
     const errorMessage = document.getElementById("error-message");
     const selectBtn = document.getElementById("select-btn");
     const downloadBtn = document.getElementById("download-btn");
+    const transformOption = document.getElementById("transform-option");
 
     // Reset the state for new uploads
     imageContainer.innerHTML = ""; // Clear the images
@@ -317,6 +345,9 @@ function handleImageUpload(event) {
     downloadBtn.style.display = "none";
     lastSelectedImage = null;
     imageSelected = false; // Allow selection for new images
+
+    // Hide the landing text section since images are being uploaded
+    transformOption.style.display = "none";
 
     // Validate the number of files
     if (files.length < 2 || files.length > 6) {
@@ -343,6 +374,13 @@ function handleImageUpload(event) {
     imageContainer.style.display = "grid";
     selectBtn.style.display = "inline-block";
 }
+
+// Show the landing-text section initially before any images are uploaded
+document.addEventListener("DOMContentLoaded", function () {
+    const transformOption = document.getElementById("transform-option");
+    transformOption.style.display = "block";
+});
+
 
 function selectRandomImage() {
     if (imageSelected) {
@@ -443,7 +481,30 @@ function downloadImage() {
         <!-- Display uploaded images -->
         <div id="image-container" style="display:none;"></div>
         
-        
+        <!-- Landing text section -->
+        <div class="landing-text" id="transform-option" 
+            style="display: none; position: relative; padding: 40px; border-radius: 10px; background-image: url('static/couple.jpg'); background-size: cover; background-position: center;">
+            <!-- Overlay to reduce opacity of background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+                        background-color: rgba(0, 0, 0, 0.5); border-radius: 10px; z-index: -1;"></div>
+
+            <h1 style="background: linear-gradient(45deg, #ff5733, #f727b8); 
+                    -webkit-background-clip: text; 
+                    -webkit-text-fill-color: transparent; 
+                    font-weight: bold; 
+                    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);">
+                Transform Your Tinder Profile
+            </h1>
+
+            <p style="background: linear-gradient(45deg, #ff5733, #f727b8); 
+                    -webkit-background-clip: text; 
+                    -webkit-text-fill-color: transparent; 
+                    font-weight: bold; 
+                    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);">
+                Boost your profile, start meaningful conversations, and get real dates—all for €9.69
+            </p>
+        </div>
+
    </main>
 
     <!-- Footer -->
