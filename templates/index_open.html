@@ -8,34 +8,42 @@
     let currentOption = 'transform'; // Track the current option
 
     function switchOption(option) {
-        const transformElement = document.getElementById('transform-option');
-        const chatAiElement = document.getElementById('chat-ai-option');
-        const landingContainer = document.querySelector('.landing-container');
+    const transformElement = document.getElementById('transform-option');
+    const chatAiElement = document.getElementById('chat-ai-option');
+    const landingContainer = document.querySelector('.landing-container');
 
-        if (option === 'transform') {
-            // Swipe out chat-ai and swipe in transform
-            chatAiElement.classList.add('slide-out-left');
-            transformElement.classList.add('slide-in-right');
-            landingContainer.style.backgroundImage = "url('static/landing.jpg')";
-            currentOption = 'transform';
-        } else if (option === 'chat-ai') {
-            // Swipe out transform and swipe in chat-ai
-            transformElement.classList.add('slide-out-left');
-            chatAiElement.classList.add('slide-in-right');
-            landingContainer.style.backgroundImage = "url('static/landing2.jpg')";
-            currentOption = 'chat-ai';
-        }
-
-        // Reset classes after the animation
-        setTimeout(() => {
-            transformElement.classList.remove('slide-in-right', 'slide-out-left');
-            chatAiElement.classList.remove('slide-in-right', 'slide-out-left');
-
-            // Ensure only the active option is visible
-            transformElement.style.display = option === 'transform' ? 'block' : 'none';
-            chatAiElement.style.display = option === 'chat-ai' ? 'block' : 'none';
-        }, 500); // Match animation duration
+    // Update the background image immediately
+    if (option === 'transform') {
+        landingContainer.style.backgroundImage = "url('static/landing.jpg')";
+        transformElement.style.display = 'block'; // Ensure it's visible for animation
+        chatAiElement.style.display = 'none';    // Hide the other element immediately
+    } else if (option === 'chat-ai') {
+        landingContainer.style.backgroundImage = "url('static/landing2.jpg')";
+        chatAiElement.style.display = 'block';   // Ensure it's visible for animation
+        transformElement.style.display = 'none'; // Hide the other element immediately
     }
+
+    // Trigger animations (remove old classes first to reset animation state)
+    transformElement.classList.remove('slide-in-right', 'slide-out-left');
+    chatAiElement.classList.remove('slide-in-right', 'slide-out-left');
+
+    if (option === 'transform') {
+        chatAiElement.classList.add('slide-out-left');
+        transformElement.classList.add('slide-in-right');
+    } else if (option === 'chat-ai') {
+        transformElement.classList.add('slide-out-left');
+        chatAiElement.classList.add('slide-in-right');
+    }
+
+    currentOption = option;
+
+    // Remove animation classes after the duration to reset state
+    setTimeout(() => {
+        transformElement.classList.remove('slide-in-right', 'slide-out-left');
+        chatAiElement.classList.remove('slide-in-right', 'slide-out-left');
+    }, 500); // Match your animation duration
+}
+
 
     // Function to toggle options automatically
     function autoToggleOptions() {
