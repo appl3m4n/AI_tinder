@@ -283,6 +283,10 @@ def option4():
 def option5():
     return render_template('option5.html', current_user=current_user)
 
+@app.route('/option6')
+def option6():
+    return render_template('option6.html', current_user=current_user)
+
 @app.route('/chat1.html')
 @login_required
 def chat1():
