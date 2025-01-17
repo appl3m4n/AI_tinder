@@ -330,6 +330,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Load the pre-trained Haar Cascade model for face detection
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
+# Load the age and gender detection models
+age_net = cv2.dnn.readNetFromCaffe('models/age_deploy.prototxt', 'models/age_net.caffemodel')
+gender_net = cv2.dnn.readNetFromCaffe('models/gender_deploy.prototxt', 'models/gender_net.caffemodel')
+
+# Define the mean values for age and gender models
+age_list = ['(0-2)', '(4-6)', '(8-12)', '(15-20)', '(25-32)', '(38-43)', '(48-53)', '(60-100)']
+gender_list = ['Male', 'Female']
+
 # Check if file has allowed extension
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -341,7 +349,7 @@ def upload_files():
         return jsonify({"error": "No images part in the request."}), 400
 
     files = request.files.getlist('images')
-    
+
     if len(files) < 2 or len(files) > 6:
         return jsonify({"error": "Please upload between 2 and 6 images."}), 400
 
@@ -363,6 +371,25 @@ def upload_files():
                 # If faces are detected, draw rectangles around them in green
                 for (x, y, w, h) in faces:
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)  # Green color (BGR format)
+
+                    # Prepare the face region for age and gender prediction
+                    face_img = img[y:y+h, x:x+w]
+                    blob = cv2.dnn.blobFromImage(face_img, 1, (227, 227), (78.5, 87.5, 114.5), swapRB=False, crop=False)
+
+                    # Predict gender
+                    gender_net.setInput(blob)
+                    gender_preds = gender_net.forward()
+                    gender = gender_list[gender_preds[0].argmax()]
+
+                    # Predict age
+                    age_net.setInput(blob)
+                    age_preds = age_net.forward()
+                    age = age_list[age_preds[0].argmax()]
+
+                    # Add the gender and age text on the image
+                    label = f"{gender}, {age}"
+                    cv2.putText(img, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
             else:
                 # No faces detected, apply semi-transparent red tint to the entire image
                 overlay = img.copy()  # Create a copy of the image for overlay
