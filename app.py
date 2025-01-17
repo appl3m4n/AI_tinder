@@ -388,13 +388,19 @@ def upload_files():
 
                     # Add the gender and age text on the image
                     label = f"{gender}, {age}"
-                    # Calculate the bottom-left corner coordinates
-                    text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.9, 2)[0]
+
+                    # Fixed font scale and thickness
+                    font_scale = 1.2  # Adjust this for your fixed text size
+                    thickness = 2     # Thickness of the text
+
+                    # Calculate the text size and position
+                    text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)[0]
                     text_x = 10  # A small margin from the left
                     text_y = img.shape[0] - 10  # A small margin from the bottom
 
                     # Put the text at the calculated position
-                    cv2.putText(img, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                    cv2.putText(img, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
+
             else:
                 # No faces detected, apply semi-transparent red tint to the entire image
                 overlay = img.copy()  # Create a copy of the image for overlay
