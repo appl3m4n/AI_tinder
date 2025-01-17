@@ -14,7 +14,6 @@ import numpy as np
 from werkzeug.utils import secure_filename
 from io import BytesIO
 import base64
-from io import BytesIO
 
 app = Flask(__name__)
 CORS(app)  # Enable Cross-Origin Resource Sharing
@@ -43,8 +42,6 @@ str1 = "sk-proj-VZeebfbISGNPnpTyL_jfGEhDiFZLm7nxC7-"
 str2 = "jxzicheaKb2uff_ch6OniIlM0HXuSGuLT_k1LxfT3BlbkFJvrXO_"
 str3 = "ditN99xACAqJ_ifMX8_OkVNhQM2IXEqMY_"
 str4 = "a6jPViBTHVv9d8Uv7_DMapROEnk9ET30wUA"
-
-openai.api_key = str1 + str2 + str3 + str4
 
 @app.route("/api/chat", methods=["POST"])
 def chat():
@@ -356,7 +353,7 @@ def upload_files():
     if len(files) < 2 or len(files) > 6:
         return jsonify({"error": "Please upload between 2 and 6 images."}), 400
 
-    results = []  # Using a list to store results
+    results = []  # Using a list instead of a dictionary
 
     for file in files:
         if file and allowed_file(file.filename):
@@ -371,9 +368,12 @@ def upload_files():
             faces = face_cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
             if len(faces) > 0:
+                # If faces are detected, draw rectangles around them in green
                 for (x, y, w, h) in faces:
                     cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)  # Green color (BGR format)
-                    face_img = img[y:y + h, x:x + w]
+
+                    # Prepare the face region for age and gender prediction
+                    face_img = img[y:y+h, x:x+w]
                     blob = cv2.dnn.blobFromImage(face_img, 1, (227, 227), (78.5, 87.5, 114.5), swapRB=False, crop=False)
 
                     # Predict gender
@@ -388,48 +388,48 @@ def upload_files():
 
                     # Add the gender and age text on the image
                     label = f"{gender}, {age}"
-                    font_scale = 1.2
-                    thickness = 2
-                    text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)[0]
-                    text_x = 10
-                    text_y = img.shape[0] - 10
-                    cv2.putText(img, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
-            else:
-                # Apply a red tint if no faces detected
-                overlay = img.copy()
-                red_overlay = np.zeros_like(overlay, dtype=np.uint8)
-                red_overlay[:] = [0, 0, 255]
-                alpha = 0.4
-                cv2.addWeighted(red_overlay, alpha, overlay, 1 - alpha, 0, img)
 
-            # Convert the processed image to base64
+                    # Fixed font scale and thickness
+                    font_scale = 1.2  # Adjust this for your fixed text size
+                    thickness = 2     # Thickness of the text
+
+                    # Calculate the text size and position
+                    text_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)[0]
+                    text_x = 10  # A small margin from the left
+                    text_y = img.shape[0] - 10  # A small margin from the bottom
+
+                    # Put the text at the calculated position
+                    cv2.putText(img, label, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (0, 255, 0), thickness)
+
+            else:
+                # No faces detected, apply semi-transparent red tint to the entire image
+                overlay = img.copy()  # Create a copy of the image for overlay
+                red_overlay = np.zeros_like(overlay, dtype=np.uint8)  # Create a blank red image
+                red_overlay[:] = [0, 0, 255]  # Set the entire image to red (BGR format)
+
+                # Blend the original image with the red overlay to add opacity
+                alpha = 0.4  # Opacity factor (0.0 is fully transparent, 1.0 is fully opaque)
+                cv2.addWeighted(red_overlay, alpha, overlay, 1 - alpha, 0, img)  # Blend the two images
+
+            # Now `img` contains the processed image with the desired effect
             _, img_encoded = cv2.imencode('.png', img)
             img_bytes = img_encoded.tobytes()
+
+            # Convert image bytes to base64 to include in response
             img_base64 = base64.b64encode(img_bytes).decode('utf-8')
-            # Create a file-like object from the image bytes
-            image_file = BytesIO(img_bytes)
 
-            # Send image to OpenAI for analysis (assuming OpenAI's image analysis)
-            # Send the image to OpenAI for analysis
-            try:
-                response = openai.Image.create(
-                    prompt="Analyze this photo.",
-                    image=img_base64  # Send the base64-encoded image string
-                )
-                openai_analysis_result = response['data']
-            except Exception as e:
-                openai_analysis_result = str(e)
-
-            # Append the results for the current image
+            # Append the result for the current image to the list
             if len(faces) > 0:
-                results.append({"filename": filename, "status": "Faces detected", "image": img_base64, "openai_analysis": openai_analysis_result})
+                results.append({"filename": filename, "status": "Faces detected", "image": img_base64})
             else:
-                results.append({"filename": filename, "status": "No faces detected", "image": img_base64, "openai_analysis": openai_analysis_result})
+                results.append({"filename": filename, "status": "No faces detected", "image": img_base64})
 
         else:
             results.append({"filename": file.filename, "status": "Invalid file type"})
 
+    # Return the results as JSON
     return jsonify(results), 200
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)

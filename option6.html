@@ -335,20 +335,21 @@ footer {
 </head>
 
 <script>
-// Image selection and upload logic
-let imagesUploaded = false;  // Flag to track if images have been uploaded
-let lastSelectedImage = null; // Reference to the last selected image
-let imageCount = 0; // To track the number of uploaded images
-let faceImages = [];  // Array to hold images with faces detected
-
-// Show the landing-text section initially before any images are uploaded
-document.addEventListener("DOMContentLoaded", function () {
-    const transformOption = document.getElementById("transform-option");
-    transformOption.style.display = "block";  // Ensure the landing section is shown
-});
-
-// Function to handle image uploads
-function handleImageUpload(event) {
+    // Image selection and upload logic
+    
+    let imagesUploaded = false;  // Flag to track if images have been uploaded
+    let lastSelectedImage = null; // Reference to the last selected image
+    let imageCount = 0; // To track the number of uploaded images
+    let faceImages = [];  // Array to hold images with faces detected
+    
+    // Show the landing-text section initially before any images are uploaded
+    document.addEventListener("DOMContentLoaded", function () {
+        const transformOption = document.getElementById("transform-option");
+        transformOption.style.display = "block";  // Ensure the landing section is shown
+    });
+    
+    // Function to handle image uploads
+    function handleImageUpload(event) {
     const files = event.target.files;
     console.log('Files selected:', files);
 
@@ -398,26 +399,27 @@ function handleImageUpload(event) {
         formData.append('images', files[i]);
     }
 
-    // Send images to the server for face detection and OpenAI analysis
+    // Send images to the server for face detection
     fetch('/upload', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Face detection and OpenAI analysis results:', data);
+        console.log('Face detection results:', data);
 
         imageContainer.innerHTML = ""; // Clear previous images
 
-        // Process server response for face detection and OpenAI analysis results
-        data.forEach(result => {
+        // Process server response for face detection results
+        Object.keys(data).forEach(filename => {
+            const result = data[filename];
+
             const wrapper = document.createElement("div");
             wrapper.classList.add("uploaded-image-wrapper");
 
             const img = document.createElement("img");
             img.classList.add("uploaded-image");
 
-            // Display image with face detection status and OpenAI analysis
             if (result.status === "Faces detected" && result.image) {
                 img.src = "data:image/png;base64," + result.image;
                 faceImages.push(img); // Add to the faceImages array if a face is detected
@@ -430,12 +432,6 @@ function handleImageUpload(event) {
                 message.textContent = "No face detected";
                 wrapper.appendChild(message);
             }
-
-            // Display the OpenAI analysis result
-            const analysisMessage = document.createElement("div");
-            analysisMessage.classList.add("analysis-message");
-            analysisMessage.textContent = "OpenAI Analysis: " + (result.openai_analysis || "No analysis available");
-            wrapper.appendChild(analysisMessage);
 
             wrapper.appendChild(img);
             imageContainer.appendChild(wrapper);
