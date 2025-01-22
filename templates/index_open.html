@@ -63,9 +63,6 @@
     });
 </script>
 
-    
-    
-    
     <style>
     /* General styles */
     body {
@@ -151,7 +148,92 @@
     .switch-buttons button:hover {
         background-color: #333;
     }
+    
+/* General Styles for Stripe Section */
+#stripe {
+    background: linear-gradient(45deg, #3498db, #ff5733);
+    color: #fff;
+    padding: 20px; /* Increased for more padding */
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    font-family: 'Arial', sans-serif;
+    margin: 20px auto; /* Automatically center horizontally */
+    width: 85%;
+    max-width: 1000px;
+    text-align: center; /* Ensure content inside the section is centered */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center-align all child elements */
+    justify-content: center; /* Center vertically */
+}
 
+
+/* Stripe Text Section */
+.stripe-text {
+    text-align: center;
+}
+
+.stripe-text h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stripe-text p {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.stripe-text ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.stripe-text ul li {
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    padding-left: 1.5rem; /* Ensures space for the checkmark */
+    position: relative;
+    line-height: 1.4; /* Adjusts spacing for better alignment */
+}
+
+.stripe-text ul li:before {
+    content: '\2713'; /* Checkmark */
+    color: #ffeb3b; /* Yellow color */
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 50%; /* Centers checkmark vertically */
+    transform: translateY(-50%); /* Ensures proper vertical alignment */
+}
+
+
+/* Stripe Button */
+.stripe-button {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ff7eb3;
+    background: #fff;
+    border-radius: 30px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+}
+
+.stripe-button:hover {
+    background: #ffeb3b;
+    color: #ff758c;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.3);
+}
     </style>
 </head>
 
@@ -258,15 +340,36 @@
                 <p>Review your chat</p>
             </a>
         </div>
+    </div>
        
         
-    </div>
-    <div class="page-views">
-        <p>Total Page Views: {{ views }}</p>
-    </div>
-    <div id="goodbye">
-        <br>
-    </div>
+    
+    
+    <!-- Stripe Payment Section -->
+        <div id="stripe">
+            <div class="stripe-text">
+                <h2>Get Access to Tinder Profile Boost & Chat AI</h2>
+                <p>Subscribe now for just <strong>€9.69/month</strong> and enjoy ongoing access to profile improvements, AI-driven conversations, and exclusive features.</p>
+                <p>With your subscription, you’ll unlock:</p>
+                <ul>
+                    <li>Expert photo recommendations</li>
+                    <li>AI-assisted conversation starters</li>
+                    <li>Exclusive updates and premium features</li>
+                </ul>
+                <a href="#" class="stripe-button">Pay with Stripe for €9.69/month</a>
+            </div>
+        </div>
+
+        
+
+        <div class="page-views">
+            <p>Total Page Views: {{ views }}</p>
+        </div>
+
+        <div id="goodbye">
+                <br>
+                <br>
+        </div>
 
         <!-- Footer -->
         <footer class="footer">
